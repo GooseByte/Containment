@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Containment</string>
+    <string name="signuperror">Sign up Error. Please try again.</string>
+    <string name="namealreadyinuse">Unfortunately the name is not available. Please select a different name</string>
+    <string name="namenotblank">Name cannot be blank</string>
+    <string name="checknameavailable">Checking if name is available...</string>
+</resources>
