@@ -4,4 +4,5 @@
     <string name="namealreadyinuse">Unfortunately the name is not available. Please select a different name</string>
     <string name="namenotblank">Name cannot be blank</string>
     <string name="checknameavailable">Checking if name is available...</string>
+    <string name="backendfailure">Failed to communicate with back-end service. Please try again</string>
 </resources>

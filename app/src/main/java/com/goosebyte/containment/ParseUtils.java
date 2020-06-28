@@ -2,6 +2,7 @@ package com.goosebyte.containment;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -11,11 +12,17 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 import com.parse.LogInCallback;
 
+import java.util.List;
+
+import static com.goosebyte.containment.GobalValues.USER_EMAILADDRESS_SUFFIX;
+import static com.goosebyte.containment.GobalValues.USER_PASSWORD_SUFFIX;
 import static com.parse.Parse.getApplicationContext;
 
 public class ParseUtils {
@@ -50,9 +57,22 @@ public class ParseUtils {
 
     }
 
-    public static boolean userNameAlreadyExists(String userName)
+    public static Boolean userNameAlreadyExists(String userName)
     {
-        return true;
+        Boolean result = null;
+        try {
+            ParseQuery<ParseUser> query = ParseUser.getQuery();
+            query.whereEqualTo("username", userName);
+            List<ParseUser> matchingUsers = query.find();
+            if (!matchingUsers.isEmpty()) {
+                result = true;
+            } else {
+                result = false;
+            }
+        } catch (Exception x) {
+            Log.e("ParseUtils",x.getMessage());
+        }
+        return result;
     }
 
     public void loginUser() {
@@ -113,24 +133,34 @@ public class ParseUtils {
                             infoErrorTextView.setText(R.string.checknameavailable);
                             nameEditText.setEnabled(false);
 
-                            //TODO: Complete
-                            if (!userNameAlreadyExists(nameEditText.getText().toString())) {
+                            Boolean userNameExists = userNameAlreadyExists(nameEditText.getText().toString());
+                            if (userNameExists != null) {
+                                if (!userNameExists) {
+                                    String emailAddress= nameEditText.getText().toString() + USER_EMAILADDRESS_SUFFIX;
+                                    String password = nameEditText.getText().toString() + USER_PASSWORD_SUFFIX;
 
-                                //TODO: Fix globals
-                                createUser(nameEditText.getText().toString(),"","");
-                                if (signUpResult != null && signUpResult == true) {
-                                    //TODO: Set value in SharedPrefs
-                                    //TODO: Restart
-                                    //dialog.dismiss();
+                                    createUser(nameEditText.getText().toString(),password,emailAddress);
+                                    if (signUpResult != null && signUpResult == true) {
+                                        //TODO: Check SharedPrefs created
+                                        SharedPrefs.createSharedPrefs(context,nameEditText.getText().toString());
+                                        dialog.dismiss();
+                                        //TODO: Restart
+
+                                    } else {
+                                        infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
+                                        infoErrorTextView.setText(R.string.signuperror);
+                                        nameEditText.setEnabled(true);
+                                    }
 
                                 } else {
                                     infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
-                                    infoErrorTextView.setText(R.string.signuperror);
+                                    infoErrorTextView.setText(R.string.namealreadyinuse);
                                     nameEditText.setEnabled(true);
                                 }
+
                             } else {
                                 infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
-                                infoErrorTextView.setText(R.string.namealreadyinuse);
+                                infoErrorTextView.setText(R.string.backendfailure);
                                 nameEditText.setEnabled(true);
                             }
 

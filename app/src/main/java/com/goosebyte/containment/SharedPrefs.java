@@ -16,6 +16,7 @@ public class SharedPrefs {
     public static final String SHARED_PREFS_USERTUTORIALSHOWN = "UserTutorialShown";
     public static final String SHARED_PREFS_CONFIGCOMPLETED ="ConfigCompleted";
     public static final String SHARED_PREFS_SOUNDONOFF ="SoundEnabled";
+    public static final String SHARED_PREFS_LASTKNOWNRANK ="LastKnownRank";
 
     public static boolean sharedPrefsExist(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
@@ -27,7 +28,7 @@ public class SharedPrefs {
 
     }
 
-    private static boolean createSharedPrefs(Context context, String userName) {
+    public static boolean createSharedPrefs(Context context, String userName) {
         boolean result = false;
         try {
             SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE).edit();
@@ -35,6 +36,7 @@ public class SharedPrefs {
             editor.putLong(SHARED_PREF_MAXYEARREACHED,0);
             editor.putLong(SHARED_PREF_PEAKPOPULATION,0);
             editor.putInt(SHARED_PREFS_GAMEATTEMPT,0);
+            editor.putInt(SHARED_PREFS_LASTKNOWNRANK,0);
             editor.putBoolean(SHARED_PREFS_USERTUTORIALSHOWN,false);
             editor.putBoolean(SHARED_PREFS_CONFIGCOMPLETED,true);
             editor.putBoolean(SHARED_PREFS_SOUNDONOFF,true);
