@@ -27,34 +27,27 @@ import static com.parse.Parse.getApplicationContext;
 
 public class ParseUtils {
 
-    private static Boolean signUpResult = null;
+    private static String createUserException ="";
+    private static String userLoginException = "";
 
-    public static void createUser(String userName, String password, String email) {
-        signUpResult = null;
+    public static boolean createUser(String userName, String password, String email) {
+        boolean createUser = false;
+        try {
+            createUserException = "";
+            ParseUser user = new ParseUser();
+            user.setUsername(userName);
+            user.setPassword(password);
+            user.setEmail(email);
+            // Other fields can be set just like any other ParseObject,
+            // using the "put" method, like this: user.put("attribute", "its value");
+            // If this field does not exists, it will be automatically created
+            user.signUp();
+            createUser = true;
 
-        ParseUser user = new ParseUser();
-        user.setUsername(userName);
-        user.setPassword(password);
-        user.setEmail(email);
-        // Other fields can be set just like any other ParseObject,
-        // using the "put" method, like this: user.put("attribute", "its value");
-        // If this field does not exists, it will be automatically created
-
-        user.signUpInBackground(new SignUpCallback() {
-            public void done(ParseException e) {
-                if (e == null) {
-                    signUpResult = true;
-                } else {
-                    signUpResult = false;
-                    String data = "Create User Failed : " + e.getMessage();
-                    Toast.makeText(getApplicationContext(), data, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
-        while (signUpResult == null) {
+        } catch (Exception x) {
+            createUserException = x.getMessage();
         }
-
+        return createUser;
     }
 
     public static Boolean userNameAlreadyExists(String userName)
@@ -75,19 +68,16 @@ public class ParseUtils {
         return result;
     }
 
-    public void loginUser() {
-        ParseUser.logInInBackground("<userName>", "<password>", new LogInCallback() {
-            public void done(ParseUser user, ParseException e) {
-                if (user != null) {
-                    // Hooray! The user is logged in.
-                } else {
-                    // Signup failed. Look at the ParseException to see what happened.
-                }
-            }
-        });
-
-        //TODO: WaitUntilResponse
-
+    public static boolean loginUser(String userName, String password) {
+        boolean userLoggedIn = false;
+        try {
+            userLoginException = "";
+            ParseUser.logIn(userName,password);
+            userLoggedIn = true;
+        } catch (Exception x) {
+            userLoginException = x.getMessage();
+        }
+        return userLoggedIn;
     }
 
     public void getCurrentUser() {
@@ -130,7 +120,7 @@ public class ParseUtils {
                         String name = nameEditText.getText().toString();
                         if (!name.isEmpty()) {
                             infoErrorTextView.setTextColor(context.getResources().getColor(R.color.busyText));
-                            infoErrorTextView.setText(R.string.checknameavailable);
+                            infoErrorTextView.setText(R.string.onemoment);
                             nameEditText.setEnabled(false);
 
                             Boolean userNameExists = userNameAlreadyExists(nameEditText.getText().toString());
@@ -139,17 +129,22 @@ public class ParseUtils {
                                     String emailAddress= nameEditText.getText().toString() + USER_EMAILADDRESS_SUFFIX;
                                     String password = nameEditText.getText().toString() + USER_PASSWORD_SUFFIX;
 
-                                    createUser(nameEditText.getText().toString(),password,emailAddress);
-                                    if (signUpResult != null && signUpResult == true) {
-                                        //TODO: Check SharedPrefs created
+                                    if (createUser(nameEditText.getText().toString(),password,emailAddress)) {
                                         SharedPrefs.createSharedPrefs(context,nameEditText.getText().toString());
-                                        dialog.dismiss();
-                                        //TODO: Restart
 
+                                        if (loginUser(nameEditText.getText().toString(), password)) {
+                                            dialog.dismiss();
+                                        } else {
+                                            infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
+                                            infoErrorTextView.setText(R.string.loginfailed);
+                                            nameEditText.setEnabled(true);
+                                            Toast.makeText(getApplicationContext(), "Login Failed : " + userLoginException, Toast.LENGTH_LONG).show();
+                                        }
                                     } else {
                                         infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
                                         infoErrorTextView.setText(R.string.signuperror);
                                         nameEditText.setEnabled(true);
+                                        Toast.makeText(getApplicationContext(), "Create User Failed : " + createUserException, Toast.LENGTH_LONG).show();
                                     }
 
                                 } else {
@@ -168,7 +163,7 @@ public class ParseUtils {
                             infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
                             infoErrorTextView.setText(R.string.namenotblank);
                         }
-                        }
+                    }
                 });
             }
         });

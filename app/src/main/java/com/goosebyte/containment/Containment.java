@@ -2,6 +2,9 @@ package com.goosebyte.containment;
 
 import com.parse.Parse;
 import android.app.Application;
+import static com.goosebyte.containment.GobalValues.PARSE_APPLICATIONID;
+import static com.goosebyte.containment.GobalValues.PARSE_CLIENTKEY;
+import static com.goosebyte.containment.GobalValues.PARSE_SERVER;
 
 public class Containment extends Application {
     // Initializes Parse SDK as soon as the application is created
@@ -10,9 +13,9 @@ public class Containment extends Application {
         super.onCreate();
 
         Parse.initialize(new Parse.Configuration.Builder(this)
-                .applicationId("hncHgZodRWQKZK6CqqZcMz9bfJ3LwYQEuJ9FJsbt")
-                .clientKey("EUcYezYblvME11J924kWHaaqAOkY0a133YD83fiN")
-                .server("https://parseapi.back4app.com")
+                .applicationId(PARSE_APPLICATIONID)
+                .clientKey(PARSE_CLIENTKEY)
+                .server(PARSE_SERVER)
                 .build()
         );
     }

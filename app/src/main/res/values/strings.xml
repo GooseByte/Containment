@@ -5,4 +5,6 @@
     <string name="namenotblank">Name cannot be blank</string>
     <string name="checknameavailable">Checking if name is available...</string>
     <string name="backendfailure">Failed to communicate with back-end service. Please try again</string>
+    <string name="onemoment">One moment please...</string>
+    <string name="loginfailed">Failed to log in user</string>
 </resources>
