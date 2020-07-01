@@ -2,6 +2,8 @@ package com.goosebyte.containment;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,7 +95,6 @@ public class ParseUtils {
     }
 
     public static void createParseUserDialog(final Context context) {
-
         LayoutInflater inflater = (LayoutInflater)   context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View dialogView = inflater.inflate(R.layout.newplayerdialog, null);
 
@@ -114,8 +115,21 @@ public class ParseUtils {
 
                     @Override
                     public void onClick(View view) {
+                        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
                         EditText nameEditText = dialogView.findViewById(R.id.nameEditText);
-                        TextView infoErrorTextView = dialogView.findViewById(R.id.infoErrorTextView);
+                        final TextView infoErrorTextView = dialogView.findViewById(R.id.infoErrorTextView);
+
+                        nameEditText.addTextChangedListener(new TextWatcher() {
+
+                            public void afterTextChanged(Editable s){}
+
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                infoErrorTextView.setText("");
+                            }
+                        });
 
                         String name = nameEditText.getText().toString();
                         if (!name.isEmpty()) {
@@ -126,6 +140,7 @@ public class ParseUtils {
                             Boolean userNameExists = userNameAlreadyExists(nameEditText.getText().toString());
                             if (userNameExists != null) {
                                 if (!userNameExists) {
+
                                     String emailAddress= nameEditText.getText().toString() + USER_EMAILADDRESS_SUFFIX;
                                     String password = nameEditText.getText().toString() + USER_PASSWORD_SUFFIX;
 
@@ -138,36 +153,48 @@ public class ParseUtils {
                                             infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
                                             infoErrorTextView.setText(R.string.loginfailed);
                                             nameEditText.setEnabled(true);
+                                            ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                                             Toast.makeText(getApplicationContext(), "Login Failed : " + userLoginException, Toast.LENGTH_LONG).show();
                                         }
                                     } else {
                                         infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
                                         infoErrorTextView.setText(R.string.signuperror);
                                         nameEditText.setEnabled(true);
+                                        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                                         Toast.makeText(getApplicationContext(), "Create User Failed : " + createUserException, Toast.LENGTH_LONG).show();
                                     }
 
                                 } else {
                                     infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
                                     infoErrorTextView.setText(R.string.namealreadyinuse);
+                                    ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                                     nameEditText.setEnabled(true);
                                 }
 
                             } else {
                                 infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
                                 infoErrorTextView.setText(R.string.backendfailure);
+                                ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                                 nameEditText.setEnabled(true);
                             }
 
                         } else {
                             infoErrorTextView.setTextColor(context.getResources().getColor(R.color.errorText));
                             infoErrorTextView.setText(R.string.namenotblank);
+                            ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                         }
                     }
                 });
             }
         });
         dialog.show();
+
     }
+
+
+
+
+
+
 
 }
