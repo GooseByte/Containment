@@ -16,10 +16,13 @@ import android.widget.EditText;
 import android.content.SharedPreferences;
 import androidx.appcompat.app.AlertDialog;
 
+import com.parse.ParseObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static com.goosebyte.containment.GobalValues.USER_PASSWORD_SUFFIX;
 import static com.goosebyte.containment.Utils.generateRandomNumber;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
@@ -62,7 +65,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
           //Create User on Parse
             ParseUtils.createParseUserDialog(context);
         } else {
-            //Load existing data, login
+            //TODO : Load existing username, login
+            String password = "MetalMilitia" + USER_PASSWORD_SUFFIX;
+
+            ParseUtils.loginUser("MetalMilitia",password);
+            ParseUtils.updateScoreRecord(25,2000);
+
+            List<ParseObject> scoreBoard = ParseUtils.getScores(20,0);
+            for (ParseObject result : scoreBoard) {
+                System.out.println("Year " + result.get("year").toString() + " Population " + result.get("population"));
+            }
+
         }
 
 

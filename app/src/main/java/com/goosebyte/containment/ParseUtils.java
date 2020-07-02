@@ -14,12 +14,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
-import com.parse.FindCallback;
-import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SignUpCallback;
-import com.parse.LogInCallback;
 
 import java.util.List;
 
@@ -52,6 +49,54 @@ public class ParseUtils {
         return createUser;
     }
 
+    public static List<ParseObject> getScores(int limit, int skip) {
+        try {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Score");
+            query.setLimit(limit);
+            query.setSkip(skip);
+            query.orderByDescending("year").addDescendingOrder("population");
+            return query.find();
+
+        } catch (Exception x) {
+            return null;
+        }
+    }
+
+
+
+    public static void updateScoreRecord(int year, int population) {
+        try {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Score");
+            query.whereEqualTo("username", ParseUser.getCurrentUser().getUsername());
+
+            List<ParseObject> results = query.find();
+            if (results != null && !results.isEmpty()){
+                //Check if higher and update if so
+                if (year == (Integer) results.get(0).get("year")) {
+                    if (population > (Integer) results.get(0).get("population")) {
+                        results.get(0).put("population", population);
+                        results.get(0).save();
+                    }
+                } else {
+                    if (year > (Integer) results.get(0).get("year")) {
+                        results.get(0).put("year", year);
+                        results.get(0).put("population", population);
+                        results.get(0).save();
+                    }
+                }
+            } else {
+                ParseObject entity = new ParseObject("Score");
+                entity.put("username", ParseUser.getCurrentUser().getUsername());
+                entity.put("year", year);
+                entity.put("population", population);
+                entity.save();
+            }
+
+        } catch (Exception x) {
+            updateScoreRecord(year,population);
+        }
+    }
+
     public static Boolean userNameAlreadyExists(String userName)
     {
         Boolean result = null;
@@ -80,18 +125,6 @@ public class ParseUtils {
             userLoginException = x.getMessage();
         }
         return userLoggedIn;
-    }
-
-    public void getCurrentUser() {
-        // After login, Parse will cache it on disk, so
-        // we don't need to login every time we open this
-        // application
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser != null) {
-            // do stuff with the user
-        } else {
-            // show the signup or login screen
-        }
     }
 
     public static void createParseUserDialog(final Context context) {
